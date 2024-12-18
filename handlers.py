@@ -13,20 +13,18 @@ from states.middleware import CheckSubscriptionMiddleware
 from aiogram.utils.text_decorations import markdown_decoration as md
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-admins = list(get_admins())
-
 def generate_callback(action: str, admin_id: int) -> str:
     return f"{action}:{admin_id}"
 
 @dp.message(F.text == "ortga qaytish 🔙")
-@admin_required(admins)
+@admin_required()
 async def back_buttton(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(f"Siz admin panelidasiz ⬇️", reply_markup=admin_panel_button)
 
 
 @dp.message(F.text == "Bekor qilish 🚫")
-@admin_required(admins)
+@admin_required()
 async def cancel_butt(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(
@@ -36,13 +34,13 @@ async def cancel_butt(message: types.Message, state: FSMContext):
 
 
 @dp.message(F.text == "🧑‍💻 admin panel")
-@admin_required(admins)
+@admin_required()
 async def admin_panel(message: types.Message):
     await message.answer("Siz admin panelidasiz ⬇️", reply_markup=admin_panel_button)
 
 
 @dp.message(F.text == "➕ Kanallar")
-@admin_required(admins)
+@admin_required()
 async def list_channels(message: types.Message, state: FSMContext):
     await message.answer(
         f"Bu yerda siz botdan foydalanish uchun majburiy obuna kanallarini qo'shishingiz yoki ularni ko'rishingiz mumkin\nQuidagilardan birini tanlang ⏬",
@@ -51,7 +49,7 @@ async def list_channels(message: types.Message, state: FSMContext):
 
 
 @dp.message(F.text == "➕ Kanal qo'shish")
-@admin_required(admins)
+@admin_required()
 async def add_channels__(message: types.Message, state: FSMContext):
     await message.answer(
         "Qo'shmoqchi bo'lgan kanalning foydalanuvchi nomini (@username) kiriting",
@@ -142,7 +140,7 @@ async def main_to_menu(message: types.Message, state: FSMContext):
 
 
 @dp.message(F.text == "🗒 Mavjud kanallar")
-@admin_required(admins)
+@admin_required()
 async def show_channels(message: types.Message):
     channels = get_channels()
     if not channels:
@@ -167,7 +165,7 @@ async def show_channels(message: types.Message):
 
 
 @dp.callback_query(lambda c: c.data.startswith("delete_channel:"))
-@admin_required(admins)
+@admin_required()
 async def delete_channel(callback_query: CallbackQuery):
     channel_id = callback_query.data.split(":")[1]
     conn = sqlite3.connect("users.db")
@@ -203,7 +201,7 @@ async def delete_channel(callback_query: CallbackQuery):
 
 
 @dp.message(F.text == "❄️ Kurslar")
-@admin_required(admins)
+@admin_required()
 async def courses_state(message: types.Message, state: FSMContext):
     await message.answer(
         f"Bu yerda siz kurslarni qo'shishingiz yoki ularni ko'rishingiz mumkin\nQuidagilardan birini tanlang ⏬",
@@ -212,7 +210,7 @@ async def courses_state(message: types.Message, state: FSMContext):
 
 
 @dp.message(F.text == "➕ Kurs qo'shish")
-@admin_required(admins)
+@admin_required()
 async def add_coursess(message: types.Message, state: FSMContext):
     await message.answer(
         "Qo'shmoqchi bo'lgan kurs kanalining foydalanuvchi nomini (@username) kiriting 🎯",
@@ -308,7 +306,7 @@ async def process_course_points(message: types.Message, state: FSMContext):
 
 
 @dp.message(F.text == "🗒 Mavjud kurslar")
-@admin_required(admins)
+@admin_required()
 async def show_courses(message: types.Message):
     keyboard = await generate_courses_keyboard()
     if not keyboard.inline_keyboard:
@@ -318,7 +316,7 @@ async def show_courses(message: types.Message):
 
 
 @dp.message(F.text == "📊 Statistika")
-@admin_required(admins)
+@admin_required()
 async def statistics(message: types.Message):
     stats = get_bot_statistics()
     stats_message = (
@@ -334,7 +332,7 @@ async def statistics(message: types.Message):
 
 
 @dp.message(F.text == "📤 Habar yuborish")
-@admin_required(admins)
+@admin_required()
 async def send_messages_to_users(message: types.Message):
     await message.answer(
         f"Bu yerda siz barcha obunachilarga yoki faqatgina 1 ta obunachiga habar yuborishingiz mumkin\nQuidagilardan birini tanlang ⏬",
@@ -343,7 +341,7 @@ async def send_messages_to_users(message: types.Message):
 
 
 @dp.message(F.text == "📨 Barchaga xabar yuborish")
-@admin_required(admins)
+@admin_required()
 async def send_message_to_all(message: types.Message, state: FSMContext):
     await message.answer(
         f"Yuborish kerak bo'lgan xabar matnini kiriting 📝", reply_markup=back_button
@@ -363,7 +361,7 @@ async def state_send_msg_to_all(message: types.Message, state: FSMContext):
 
 
 @dp.message(F.text == "📩 Alohida habar yuborish")
-@admin_required(admins)
+@admin_required()
 async def send_message_to_all(message: types.Message, state: FSMContext):
     await message.answer(
         f"Habar yubormoqchi bo'lgan foydalanuvchining ID raqamini kiriting 📝"
@@ -474,7 +472,7 @@ async def about_bot(message: types.Message):
 
 
 @dp.message(F.text == "👤 Adminlar")
-@admin_required(admins)
+@admin_required()
 async def admins_button(message: types.Message):
     await message.answer(
         f"Bu bo'limda siz admin qo'shishingiz yoki ular ro'yhatini ko'rishingiz mumkin. ",
@@ -484,9 +482,9 @@ async def admins_button(message: types.Message):
 
 
 @dp.message(F.text == "➕ Admin qo'shish")
-@admin_required(admins)
+@admin_required()
 async def add_admin_command(message: types.Message, state: FSMContext):
-    await message.answer(f"Admin etib tayinlamoqchi bo'lgan foydalanuvchini ID raqamini kiriting.")
+    await message.answer(f"Admin etib tayinlamoqchi bo'lgan foydalanuvchini ID raqamini kiriting.", reply_markup=back_button)
     await state.set_state(Adminid.admin_id)
     
 @dp.message(Adminid.admin_id)
@@ -501,6 +499,7 @@ async def add_admin_state(message: types.Message, state: FSMContext):
         try:
             user_id = int(message.text.strip())
             add_admin(user_id)
+            print(list(get_admins()))
             await message.answer(f"✅ User {user_id} has been added as an admin.", reply_markup=admin_panel_button)
             await state.clear()
         except ValueError:

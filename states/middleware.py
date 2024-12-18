@@ -90,10 +90,11 @@ class CheckSubscriptionMiddleware(BaseMiddleware):
         return
 
 
-def admin_required(admin_list):
+def admin_required():
     def decorator(handler):
         @wraps(handler)
         async def wrapper(message: types.Message, *args, **kwargs):
+            admin_list = list(get_admins())
             user_id = message.from_user.id
             if not user_id in admin_list:
                 await message.answer("Siz noto'g'ri buyruq yubordingiz!")
