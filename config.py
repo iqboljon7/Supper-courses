@@ -1,4 +1,5 @@
 import sqlite3
+import signal
 from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
@@ -10,3 +11,6 @@ import os
 bot = Bot(token=os.getenv('BOT_TOKEN'))
 dp = Dispatcher(storage=MemoryStorage()) 
 port = int(os.getenv("PORT", 5000))
+def ignore_sigterm(*args):
+    print("SIGTERM received, ignoring...")
+signal.signal(signal.SIGTERM, ignore_sigterm)
