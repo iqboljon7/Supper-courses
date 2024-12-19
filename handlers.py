@@ -268,7 +268,7 @@ async def process_course_points(message: types.Message, state: FSMContext):
     points = message.text.strip()
     if not points.isdigit() or int(points) <= 0:
         await message.answer(
-            "❌ Siz noto'g'ri ma'lumot kiritdingiz. Iltimos, musbat son kiriting."
+            "❌ Siz noto'g'ri ma'lumot kiritdingiz. Iltimos, musbat son kiriting.",  reply_markup=admin_panel_button
         )
         return
 
@@ -278,18 +278,12 @@ async def process_course_points(message: types.Message, state: FSMContext):
         await add_course(data["just_name"], data["waiting_for_course_username"], points)
     except Exception as e:
         await message.answer(
-            "❌ Kursni qo'shishda xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring."
+            "❌ Kursni qo'shishda xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.", reply_markup=admin_panel_button
         )
-        print(f"Error adding course: {e}")
+        print(f"Error adding course: {e}",)
         return
 
-    username = data["waiting_for_course_username"]
-    if username.startswith("@"):
-        username_display = username
-    elif username.startswith("user_"):
-        username_display = username[5:]
-    else:
-        username_display = f"{username}"
+    username_display = data["waiting_for_course_username"]
     course_name = data["just_name"]
     points_display = points
     print(course_name, username_display, points_display)
