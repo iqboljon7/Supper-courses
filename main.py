@@ -7,6 +7,24 @@ from keyboards.keyboard import phone_number, get_main_menu
 from states.middleware import CheckSubscriptionMiddleware
 from functions import *
 
+from aiohttp import web
+
+routes = web.RouteTableDef()
+
+@routes.post("/webhook")
+async def webhook_handler(request):
+    update = await request.json()
+    await dp.feed_update(bot=bot, update=update)
+    return web.Response()
+
+
+async def on_startup(app):
+    await bot.set_webhook(WEBHOOK_URL)
+    logging.info(f"Webhook set at {WEBHOOK_URL}")
+async def on_shutdown(app):
+    await bot.delete_webhook()
+
+
 conn = sqlite3.connect("users.db")
 cursor = conn.cursor()
 cursor.execute(
@@ -109,10 +127,20 @@ async def any_word(msg: types.Message):
 
 
 async def main():
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
-
+    app = web.Application()
+    app.add_routes(routes)
+    app.on_startup.append(on_startup)
+    app.on_shutdown.append(on_shutdown)
+    logging.basicConfig(level=logging.INFO)
+    logging.info(f"Starting webhook server on port {PORT}")
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, port=PORT)
+    await site.start()
+    await asyncio.Event().wait()
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.error("Bot stopped!")
