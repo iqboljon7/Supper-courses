@@ -12,16 +12,19 @@ from keyboards.keyboard import get_main_menu, phone_number
 from states.state import UserStates
 
 class CheckSubscriptionMiddleware(BaseMiddleware):
-    def __init__(self, required_channels: list):
+    def __init__(self):
         super().__init__()
-        self.required_channels = required_channels
 
     async def __call__(
         self, handler: Callable, event: Message, data: Dict[str, Any]
     ) -> Any:
+        channels = list(get_channels())
+        required_channels = []
+        for i in range(len(channels)):
+            channels[i] = list(channels[i])
+            required_channels.append(channels[i][2])
         if not isinstance(event, Message):
             return await handler(event, data)
-
         user_id = event.from_user.id
         referrerid = None
         if event.text and event.text.startswith("/start"):
@@ -58,7 +61,6 @@ class CheckSubscriptionMiddleware(BaseMiddleware):
         if not not_subscribed:
             return await handler(event, data)
 
-        # Ask user to subscribe
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [

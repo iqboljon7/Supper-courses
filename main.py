@@ -72,12 +72,8 @@ conn.close()
 
 import handlers
 
-channels = list(get_channels())
-ad = []
-for i in range(len(channels)):
-    channels[i] = list(channels[i])
-    ad.append(channels[i][2])
-dp.message.middleware(CheckSubscriptionMiddleware(required_channels=ad))
+
+dp.message.middleware(CheckSubscriptionMiddleware())
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
