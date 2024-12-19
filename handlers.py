@@ -289,17 +289,15 @@ async def process_course_points(message: types.Message, state: FSMContext):
     elif username.startswith("user_"):
         username_display = username[5:]
     else:
-        username_display = f"ID: {username}"
+        username_display = f"{username}"
     course_name = data["just_name"]
-    username_display = username_display
     points_display = points
     print(course_name, username_display, points_display)
     await message.answer(
-        f"✅ *Kurs muvaffaqiyatli qo'shildi!* 🎉\n\n"
-        f"🏷 *Kurs nomi:* *{course_name}*\n"
-        f"🔗 *Foydalanuvchi/ID:* `{username_display}`\n"
-        f"🎯 *Ballar:* `{points_display}`",
-        parse_mode="Markdown",
+        f"✅ Kurs muvaffaqiyatli qo'shildi! 🎉\n\n"
+        f"🏷 Kurs nomi: {course_name}\n"
+        f"🔗 Foydalanuvchi/ID: {username_display}\n"
+        f"🎯 Ballar: {points_display}",
         reply_markup=admin_panel_button,
     )
     await state.clear()
