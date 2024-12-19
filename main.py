@@ -6,16 +6,24 @@ from states.state import UserStates
 from keyboards.keyboard import phone_number, get_main_menu
 from states.middleware import CheckSubscriptionMiddleware
 from functions import *
+from aiogram.types import Update
+
 
 from aiohttp import web
 
 routes = web.RouteTableDef()
 
 @routes.post("/webhook")
-async def webhook_handler(request):
-    update = await request.json()
-    await dp.feed_update(bot=bot, update=update)
-    return web.Response()
+async def webhook_handler(request: web.Request):
+    try:
+        raw_data = await request.json()
+        update = Update(**raw_data)
+        await dp.feed_update(bot=bot, update=update)
+        return web.Response(text="OK")
+    except Exception as e:
+        print(f"Error in webhook handler: {e}")
+        return web.Response(status=500, text="Internal Server Error")
+
 
 
 async def on_startup(app):
