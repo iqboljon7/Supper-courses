@@ -18,11 +18,6 @@ class CheckSubscriptionMiddleware(BaseMiddleware):
     async def __call__(
         self, handler: Callable, event: Message, data: Dict[str, Any]
     ) -> Any:
-        channels = list(get_channels())
-        required_channels = []
-        for i in range(len(channels)):
-            channels[i] = list(channels[i])
-            required_channels.append(channels[i][2])
         if not isinstance(event, Message):
             return await handler(event, data)
         user_id = event.from_user.id
@@ -43,11 +38,11 @@ class CheckSubscriptionMiddleware(BaseMiddleware):
         bot = data["bot"]
         channels = list(get_channels())
         ad = [channel[2] for channel in channels]
-        
         if not ad:
             return await handler(event, data)
 
         not_subscribed = []
+        
         for channel in ad:
             try:
                 member: ChatMember = await bot.get_chat_member(
@@ -84,7 +79,7 @@ class CheckSubscriptionMiddleware(BaseMiddleware):
             chat_id=user_id,
             text=(
                 "⛔️ Botdan foydalanish uchun avval siz quidagi kanallarga obuna bo'lishingiz shart:\n"
-                + "\Obuna bo'lgandan so'ng '✅ Tasdiqlash' tugmasini bosing"
+                + "Obuna bo'lgandan so'ng '✅ Tasdiqlash' tugmasini bosing"
             ),
             reply_markup=keyboard,
         )

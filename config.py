@@ -10,7 +10,7 @@ load_dotenv()
 import os
 bot = Bot(token=os.getenv('BOT_TOKEN'))
 dp = Dispatcher(storage=MemoryStorage()) 
-port = int(os.getenv("PORT", 5000))
+port = int(os.getenv("PORT", 4000))
 def ignore_sigterm(*args):
     print("SIGTERM received, ignoring...")
 signal.signal(signal.SIGTERM, ignore_sigterm)
