@@ -5,5 +5,5 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 from aiogram.fsm.state import State, StatesGroup
 
-bot = Bot(token="7551552738:AAFP7dn4wvg-v3AM75uAFfB9I2XAHjSDbVo")
+bot = Bot(token="7551552738:AAFzh7x2NPXcSDCV-p-zkS3McMUiblCyvPM")
 dp = Dispatcher(storage=MemoryStorage())
