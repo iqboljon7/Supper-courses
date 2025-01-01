@@ -4,10 +4,6 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 from aiogram.fsm.state import State, StatesGroup
-import os
-from dotenv import load_dotenv
-load_dotenv()
 
-bot = Bot(token=os.getenv("BOT_TOKEN"))
+bot = Bot(token="7551552738:AAFP7dn4wvg-v3AM75uAFfB9I2XAHjSDbVo")
 dp = Dispatcher(storage=MemoryStorage())
-PORT = int(os.getenv("PORT", 5000)) 

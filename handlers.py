@@ -402,7 +402,7 @@ async def state_send_msg_to_all(message: types.Message, state: FSMContext):
 
 @dp.message(F.text == "💠 Referal dastur")
 async def send_referral_link(message: types.Message):
-    referral_link = f"https://t.me/cnnfreedomproject_bot?start={message.from_user.id}"
+    referral_link = f"https://t.me/free_courses_robot?start={message.from_user.id}"
 
     await message.answer(
         f"🎁 Sizning referral silkangiz 👇👇👇:\n"

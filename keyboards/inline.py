@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.types import CallbackQuery
 from functions import *
 from config import *
-from keyboards.keyboard import back_button, courses_button, back_button
+from keyboards.keyboard import back_button, courses_button, back_button, admin_panel_button
 from states.state import forpoint
 
 
@@ -87,12 +87,11 @@ async def change_points_callback(call: types.CallbackQuery, state: FSMContext):
 async def process_new_points(message: types.Message, state: FSMContext):
     new_points = message.text.strip()
 
-    if not new_points.isdigit():
+    if not new_points.isdigit() and new_points != "Bekor qilish 🚫":
         await message.answer(
             "❌ Iltimos, faqat raqam kiriting.", reply_markup=back_button
         )
         return
-
     data = await state.get_data()
     course_id = data.get("course_id")
     conn = sqlite3.connect("users.db")
