@@ -307,6 +307,10 @@ async def show_courses(message: types.Message):
         await message.answer("📋 Kurslar ro'yxati:", reply_markup=keyboard)
 
 
+@dp.message(F.text == "👤 foydalanuvchilar")
+@admin_required()
+async def statistics(message: types.Message):
+    await message.answer(f"Ishlovda ...")
 @dp.message(F.text == "📊 Statistika")
 @admin_required()
 async def statistics(message: types.Message):
