@@ -38,7 +38,7 @@ admin_panel_button = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="📊 Statistika"),
             KeyboardButton(text="📤 Habar yuborish"),
-            KeyboardButton(text="💲accountlar"),
+            KeyboardButton(text="👤 foydalanuvchilar"),
         ],
         [
             KeyboardButton(text="🔙 asosiy menu"),
