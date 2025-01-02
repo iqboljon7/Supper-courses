@@ -343,12 +343,13 @@ async def list_users(message: types.Message):
 
         return user_list
     def create_pagination_buttons(page):
-        keyboard = InlineKeyboardMarkup(row_width=2)
+        keyboard = []
         if page > 1:
-            keyboard.insert(InlineKeyboardButton("⬅️ Previous", callback_data=f"page_{page - 1}"))
+            keyboard.append([InlineKeyboardButton(text="⬅️ Previous", callback_data=f"page_{page - 1}")])
         if (page * USERS_PER_PAGE) < len(users):
-            keyboard.insert(InlineKeyboardButton("Next ➡️", callback_data=f"page_{page + 1}"))
-        return keyboard
+            keyboard.append([InlineKeyboardButton(text="Next ➡️", callback_data=f"page_{page + 1}")])
+        return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
     async def show_users(message: types.Message, page=1):
         user_list = generate_user_list(page)
         user_details = "\n".join(user_list)
