@@ -330,7 +330,7 @@ def generate_user_list(users, page):
     page_users = users[start_index:end_index]
 
     user_list = [
-        f"{phone} (<a href='tg://user?id={user_id}'>{user_id}</a>)"
+        f"{user_id.first_name} (<a href='tg://user?id={user_id}'>{user_id}</a>)"
         for user_id, phone in page_users
     ]
     return user_list
@@ -430,7 +430,7 @@ async def state_info_users(message: types.Message, state: FSMContext):
                 user_details = (
                     f"👤 *Shaxsiy kabinet*\n\n"
                     f"🎟 *Maqomi:* {is_admin}\n"
-                    f"📞 *Telefon raqami:* +[{user_info['phone']}](tel:{user_info['phone']})\n"
+                    f"📞 *Telefon raqami:* [{user_info['phone']}](tel:{user_info['phone']})\n"
                     f"🆔 *Foydalanuvchi ID:* [{user_info['user_id']}](tg://user?id={user_info['user_id']})\n"
                     f"👥 *Takliflari soni:* {user_info['referrals']}\n"
                     f"⭐️ *Ballari:* {user_info['points']}\n"
