@@ -314,11 +314,15 @@ async def show_courses(message: types.Message):
         await message.answer("📋 Kurslar ro'yxati:", reply_markup=keyboard)
 
 
-@dp.message(F.text == "👤 foydalanuvchilar")
+@dp.message(F.text == "🧑‍🎓 foydalanuvchilar")
 @admin_required()
 async def statistics(message: types.Message):
     await message.answer(f"Ishlovda ...")
-
+    
+@dp.message(F.text == "🕹 o'yinlar")
+async def statistics(message: types.Message):
+    await message.answer(f"⚙️ Ishlovda ...")
+    
 
 @dp.message(F.text == "❓ help")
 async def statistics(message: types.Message, state: FSMContext):

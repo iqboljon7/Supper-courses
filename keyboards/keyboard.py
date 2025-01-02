@@ -20,6 +20,9 @@ async def get_main_menu(user_id: int):
         ],
         [
             KeyboardButton(text="👤 Shaxsiy kabinet"),
+            KeyboardButton(text="🕹 o'yinlar"),
+        ],
+        [
             KeyboardButton(text="🧩 Bot haqida"),
             KeyboardButton(text="❓ help"),
             
@@ -40,7 +43,7 @@ admin_panel_button = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="📊 Statistika"),
             KeyboardButton(text="📤 Habar yuborish"),
-            KeyboardButton(text="👤 foydalanuvchilar"),
+            KeyboardButton(text="🧑‍🎓 foydalanuvchilar"),
         ],
         [
             KeyboardButton(text="🔙 asosiy menu"),
