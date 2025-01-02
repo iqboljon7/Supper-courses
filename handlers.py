@@ -326,8 +326,43 @@ async def users_butn(message: types.Message):
 @dp.message(F.text == "🪪 foydalanuvchilar ro'yhati")
 @admin_required()
 async def list_users(message: types.Message):
-    await message.answer(f"ishlovda ...")
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id, phone FROM users")
+    users = cursor.fetchall()
+    USERS_PER_PAGE = 20 
+    def generate_user_list(page=1):
+        start_index = (page - 1) * USERS_PER_PAGE
+        end_index = start_index + USERS_PER_PAGE
+        page_users = users[start_index:end_index]
 
+        user_list = []
+        for user in page_users:
+            user_id, phone = user
+            user_list.append(f"{phone} (ID: [👤 {user_id}](tg://user?id={user_id}))")
+
+        return user_list
+    def create_pagination_buttons(page):
+        keyboard = InlineKeyboardMarkup(row_width=2)
+        if page > 1:
+            keyboard.insert(InlineKeyboardButton("⬅️ Previous", callback_data=f"page_{page - 1}"))
+        if (page * USERS_PER_PAGE) < len(users):
+            keyboard.insert(InlineKeyboardButton("Next ➡️", callback_data=f"page_{page + 1}"))
+        return keyboard
+    async def show_users(message: types.Message, page=1):
+        user_list = generate_user_list(page)
+        user_details = "\n".join(user_list)
+        pagination_buttons = create_pagination_buttons(page)
+        await message.answer(
+            f"Here are the users (Page {page}):\n\n{user_details}",
+            parse_mode="Markdown",
+            reply_markup=pagination_buttons
+        )
+    @dp.callback_query(lambda c: c.data.startswith("page_"))
+    async def paginate_users(callback_query: types.CallbackQuery):
+        page = int(callback_query.data.split("_")[1])
+        await show_users(callback_query.message, page)
+    await show_users(message, page=1)
 
 @dp.message(F.text == "🗒 foydalanuvchi ma'lumotlari")
 @admin_required()

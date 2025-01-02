@@ -147,9 +147,6 @@ edit_user_info = ReplyKeyboardMarkup(
             KeyboardButton(text="➖ bal ayrish"),
         ],
         [
-            KeyboardButton(text="🚫 foydalanuvchini bloklash"),
-        ],
-        [
             KeyboardButton(text="ortga qaytish 🔙"),
         ],
     ],
