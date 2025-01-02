@@ -38,12 +38,14 @@ admin_panel_button = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="➕ Kanallar"),
             KeyboardButton(text="❄️ Kurslar"),
+        ],
+        [
             KeyboardButton(text="👤 Adminlar"),
+            KeyboardButton(text="🧑‍🎓 foydalanuvchilar"),
         ],
         [
             KeyboardButton(text="📊 Statistika"),
             KeyboardButton(text="📤 Habar yuborish"),
-            KeyboardButton(text="🧑‍🎓 foydalanuvchilar"),
         ],
         [
             KeyboardButton(text="🔙 asosiy menu"),
