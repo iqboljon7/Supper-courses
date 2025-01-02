@@ -319,12 +319,6 @@ async def statistics(message: types.Message):
     await message.answer(f"Ishlovda ...")
 
 
-@dp.message(F.text == "ortga qaytish 🚫")
-async def statistics(message: types.Message, state: FSMContext):
-    await state.clear()
-    await message.answer(f"Siz asosiy menudasiz 👇", reply_markup=get_main_menu)
-
-
 @dp.message(F.text == "❓ help")
 async def statistics(message: types.Message, state: FSMContext):
     await message.answer(
@@ -339,14 +333,16 @@ async def statistics(message: types.Message, state: FSMContext):
     if message.text != "ortga qaytish 🚫":
         await bot.send_message(
             chat_id=6807731973,
-            text=f"Foydalanuvchi — {message.from_user.first_name (message.from_user.id)} sizga habar yubordi: \n{message.text}",
+            text=f"Foydalanuvchi — {message.from_user.first_name} ({message.from_user.id}) sizga habar yubordi: \n{message.text}",
         )
         await message.answer(
             f"Habaringiz adminga muvaffaqiyatli yuborildi ✅",
             reply_markup=get_main_menu,
         )
         await state.clear()
-
+    else:
+        await state.clear()
+        await message.answer(f"Siz asosiy menudasiz 👇", reply_markup=get_main_menu)
 
 @dp.message(F.text == "📊 Statistika")
 @admin_required()
