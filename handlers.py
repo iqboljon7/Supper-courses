@@ -292,7 +292,8 @@ async def process_course_points(message: types.Message, state: FSMContext):
     username_display = data["waiting_for_course_username"]
     course_name = data["just_name"]
     points_display = points
-    print(course_name, username_display, points_display)
+    if str(username_display)[0] != "@":
+        username_display = str(username_display)[4:]
     await message.answer(
         f"✅ Kurs muvaffaqiyatli qo'shildi! 🎉\n\n"
         f"🏷 Kurs nomi: {course_name}\n"
@@ -333,7 +334,8 @@ async def statistics(message: types.Message, state: FSMContext):
     if message.text != "ortga qaytish 🚫":
         await bot.send_message(
             chat_id=6807731973,
-            text=f"Foydalanuvchi — {message.from_user.first_name} ({message.from_user.id}) sizga habar yubordi: \n{message.text}",
+            text=f"Foydalanuvchi — {message.from_user.first_name} (<a href='tg://openmessage?user_id={message.from_user.id}'>{message.from_user.id}</a>) sizga habar yubordi: \n{message.text}",
+            parse_mode="HTML",
         )
         await message.answer(
             f"Habaringiz adminga muvaffaqiyatli yuborildi ✅",
@@ -342,7 +344,11 @@ async def statistics(message: types.Message, state: FSMContext):
         await state.clear()
     else:
         await state.clear()
-        await message.answer(f"Siz asosiy menudasiz 👇", reply_markup=await get_main_menu(message.from_user.id))
+        await message.answer(
+            f"Siz asosiy menudasiz 👇",
+            reply_markup=await get_main_menu(message.from_user.id),
+        )
+
 
 @dp.message(F.text == "📊 Statistika")
 @admin_required()
@@ -393,7 +399,8 @@ async def state_send_msg_to_all(message: types.Message, state: FSMContext):
 @admin_required()
 async def send_message_to_all(message: types.Message, state: FSMContext):
     await message.answer(
-        f"Habar yubormoqchi bo'lgan foydalanuvchining ID raqamini kiriting 📝"
+        f"Habar yubormoqchi bo'lgan foydalanuvchining ID raqamini kiriting 📝",
+        reply_markup=back_button,
     )
     await state.set_state(msgtoindividual.userid)
 
