@@ -25,7 +25,6 @@ async def get_main_menu(user_id: int):
         [
             KeyboardButton(text="🧩 Bot haqida"),
             KeyboardButton(text="❓ help"),
-            
         ],
     ]
     if is_admin:
@@ -118,6 +117,37 @@ admins_list_button = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="➕ Admin qo'shish"),
             KeyboardButton(text="🧾 Adminlar ro'yhati"),
+        ],
+        [
+            KeyboardButton(text="ortga qaytish 🔙"),
+        ],
+    ],
+    resize_keyboard=True,
+)
+
+users_control_button = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="🪪 foydalanuvchilar ro'yhati"),
+        ],
+        [
+            KeyboardButton(text="🗒 foydalanuvchi ma'lumotlari"),
+        ],
+        [
+            KeyboardButton(text="ortga qaytish 🔙"),
+        ],
+    ],
+    resize_keyboard=True,
+)
+
+edit_user_info = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="➕ bal qo'shish"),
+            KeyboardButton(text="➖ bal ayrish"),
+        ],
+        [
+            KeyboardButton(text="🚫 foydalanuvchini bloklash"),
         ],
         [
             KeyboardButton(text="ortga qaytish 🔙"),

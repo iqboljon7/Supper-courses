@@ -316,16 +316,166 @@ async def show_courses(message: types.Message):
 
 @dp.message(F.text == "🧑‍🎓 foydalanuvchilar")
 @admin_required()
-async def statistics(message: types.Message):
-    await message.answer(f"Ishlovda ...")
+async def users_butn(message: types.Message):
+    await message.answer(
+        f"Bu bo'limda siz foydalanuvchilar bilan bog'liq amallarni bajarishingiz mumkin",
+        reply_markup=users_control_button,
+    )
+
+
+@dp.message(F.text == "🪪 foydalanuvchilar ro'yhati")
+@admin_required()
+async def list_users(message: types.Message):
+    await message.answer(f"ishlovda ...")
+
+
+@dp.message(F.text == "🗒 foydalanuvchi ma'lumotlari")
+@admin_required()
+async def info_users(message: types.Message, state: FSMContext):
+    await message.answer(
+        f"Kerakli foydalanuvchining id raqamini kiriting.", reply_markup=back_button
+    )
+    await state.set_state(UserInformations.userid_state)
+
+
+@dp.message(UserInformations.userid_state)
+@admin_required()
+async def state_info_users(message: types.Message, state: FSMContext):
+    user_id = message.text
+    if not user_id.isdigit():
+        await message.answer(
+            "Siz noto'g'ri ma'lumot kiritdingiz. Qaytadan urinib ko'ring."
+        )
+    else:
+        if not check_user_exists(int(user_id)):
+            await message.answer(
+                f"Berilgan ID orqali hech qanday foydalanuvchi topilmadi.",
+                reply_markup=admin_panel_button,
+            )
+        else:
+            user_id = int(user_id)
+            is_admin = "admin 🧑‍💻" if is_user_admin(user_id) else "foydalanuvchi 🙍‍♂️"
+            user_info = get_user_info(user_id)
+
+            if user_info:
+                user_details = (
+                    f"👤 *Shaxsiy kabinet*\n\n"
+                    f"🎟 *Maqomi:* {is_admin}\n"
+                    f"📞 *Telefon raqami:* [{user_info['phone']}](tel:{user_info['phone']})\n"
+                    f"🆔 *Foydalanuvchi ID:* [{user_info['user_id']}](tg://user?id={user_info['user_id']})\n"
+                    f"👥 *Takliflari soni:* {user_info['referrals']}\n"
+                    f"⭐️ *Ballari:* {user_info['points']}\n"
+                )
+                await message.answer(
+                    user_details, parse_mode="Markdown", reply_markup=edit_user_info
+                )
+                global vaqtincha
+                vaqtincha = user_id
+            else:
+                await message.answer(
+                    "❌ Foydalanuvchi haqida ma'lumot topilmadi. Iltimos, qaytadan urinib ko'ring",
+                    reply_markup=admin_panel_button,
+                )
+                await state.clear()
+
+
+@dp.message(F.text == "➕ bal qo'shish")
+@admin_required()
+async def info_users(message: types.Message, state: FSMContext):
+    await message.answer(
+        f"Foydalanuvchiga qo'shmoqchi bo'lgan ballaringiz sonini kiriting.",
+        reply_markup=back_button,
+    )
+    await state.set_state(Addpontstouser.pointstoadd)
+
+
+@dp.message(Addpontstouser.pointstoadd)
+@admin_required()
+async def state_info_users(message: types.Message, state: FSMContext):
+    text = message.text
+    if not text.isdigit() or int(text) < 0:
+        await message.answer(
+            f"Siz noto'g'ri ma'lumot kiritdingiz, iltimos to'g'ri raqam kiriting. ",
+            reply_markup=back_button,
+        )
+    else:
+        user_id = vaqtincha
+        text = int(text)
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT points FROM users WHERE user_id = ?", (user_id,))
+        result = cursor.fetchone()
+        try:
+            up_points = max(0, result[0] + text)
+            cursor.execute(
+                "UPDATE users SET points =  ? WHERE user_id = ?",
+                (up_points, user_id),
+            )
+            await bot.send_message(chat_id=user_id, text=f"Admin tomonidan hisobingizga {text} ball qo'shildi ✅")
+            await message.answer(f"Foydalanuvchi hisobiga {text} ball qo'shildi ✅", reply_markup=admin_panel_button)
+            await state.clear()
+        except TelegramBadRequest as e:
+            await message.answer(
+                f"Xatolik yuz berdi ❗️qaytadan urinib ko'ring",
+                reply_markup=admin_panel_button,
+            )
+        conn.commit()
+        conn.close()
     
-@dp.message(F.text == "🕹 o'yinlar")
-async def statistics(message: types.Message):
-    await message.answer(f"⚙️ Ishlovda ...")
     
 
+@dp.message(F.text == "➖ bal ayrish")
+@admin_required()
+async def info_users(message: types.Message, state: FSMContext):
+    await message.answer(
+        f"Foydalanuvchidan ayrimoqchi bo'lgan ballaringiz sonini kiriting.",
+        reply_markup=back_button,
+    )
+    await state.set_state(Addpontstouser.minuspoints)
+
+
+@dp.message(Addpontstouser.minuspoints)
+@admin_required()
+async def state_info_users(message: types.Message, state: FSMContext):
+    text = message.text
+    if not text.isdigit() or int(text) < 0:
+        await message.answer(
+            f"Siz noto'g'ri ma'lumot kiritdingiz, iltimos to'g'ri raqam kiriting. ",
+            reply_markup=back_button,
+        )
+    else:
+        user_id = vaqtincha
+        text = int(text)
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT points FROM users WHERE user_id = ?", (user_id,))
+        result = cursor.fetchone()
+        try:
+            up_points = max(0, result[0] - text)
+            cursor.execute(
+                "UPDATE users SET points =  ? WHERE user_id = ?",
+                (up_points, user_id),
+            )
+            await bot.send_message(chat_id=user_id, text=f"Admin tomonidan hisobingizdan {text} ball ayrildi 🤕")
+            await message.answer(f"Foydalanuvchi hisobidan {text} ball ayrildi ✅", reply_markup=admin_panel_button)
+            await state.clear()
+        except TelegramBadRequest as e:
+            await message.answer(
+                f"Xatolik yuz berdi ❗️qaytadan urinib ko'ring",
+                reply_markup=admin_panel_button,
+            )
+        conn.commit()
+        conn.close()
+
+
+
+@dp.message(F.text == "🕹 o'yinlar")
+async def games_butnn(message: types.Message):
+    await message.answer(f"⚙️ Ishlovda ...")
+
+
 @dp.message(F.text == "❓ help")
-async def statistics(message: types.Message, state: FSMContext):
+async def help_butn(message: types.Message, state: FSMContext):
     await message.answer(
         f"Bot haqida savol va takliflaringiz bo'lsa shu yerda yozib qoldirishingiz mumkin ⬇️",
         reply_markup=back_button_everyone,
@@ -334,7 +484,7 @@ async def statistics(message: types.Message, state: FSMContext):
 
 
 @dp.message(MessagetoAdmin.msgt)
-async def statistics(message: types.Message, state: FSMContext):
+async def help_button_state(message: types.Message, state: FSMContext):
     if message.text != "ortga qaytish 🚫":
         await bot.send_message(
             chat_id=6807731973,
@@ -389,7 +539,7 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
 
 
 @dp.message(msgtoall.sendtoall)
-async def state_send_msg_to_all(message: types.Message, state: FSMContext):
+async def state_send_msg_to_all_stat(message: types.Message, state: FSMContext):
     msg_text = message.text
     await send_message_to_all_users(msg_text, message.from_user.id)
     await message.answer(
@@ -410,26 +560,26 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
 
 
 @dp.message(msgtoindividual.userid)
-async def state_send_msg_to_all(message: types.Message, state: FSMContext):
+async def state_send_msg_to_all_state(message: types.Message, state: FSMContext):
     user_id = message.text.strip()
     if not user_id.isdigit():
         await message.answer(
             "Siz noto'g'ri ma'lumot kiritdingiz. Qaytadan urinib ko'ring."
         )
     else:
+        if user_id == message.from_user.id:
+            await message.answer(
+                f"Siz o'zingizga o'zingiz habar yubora olmaysiz.",
+                reply_markup=admin_panel_button,
+            )
+            await state.clear()
+            return
         if not check_user_exists(int(user_id)):
-            if user_id == message.from_user.id:
-                await message.answer(
-                    f"Siz o'zingizga o'zingiz habar yubora olmaysiz.",
-                    reply_markup=admin_panel_button,
-                )
-                await state.clear()
-            else:
-                await message.answer(
-                    f"Berilgan ID orqali hech qanday foydalanuvchi topilmadi.",
-                    reply_markup=admin_panel_button,
-                )
-                await state.clear()
+            await message.answer(
+                f"Berilgan ID orqali hech qanday foydalanuvchi topilmadi.",
+                reply_markup=admin_panel_button,
+            )
+            await state.clear()
         else:
             await state.update_data(userid=user_id)
             await message.answer(f"Endi esa yuborish kerak bo'lgan matnni kiriting.")
@@ -468,8 +618,8 @@ async def personal_infos(message: types.Message, state: FSMContext):
         user_details = (
             f"👤 *Shaxsiy kabinet*\n\n"
             f"📞 Telefon raqami: {user_info['phone']}\n"
-            f"👥 Taklif qilganlar soni: *{user_info['referrals']}*\n"
-            f"⭐️ Bonus ballari: *{user_info['points']}*\n"
+            f"👥 Takliflar soni: *{user_info['referrals']}*\n"
+            f"⭐️ Ballar: *{user_info['points']}*\n"
         )
         await message.answer(user_details, parse_mode="Markdown")
     else:

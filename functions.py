@@ -73,7 +73,6 @@ async def give_channel_access(user_id: int, channel_id: str, points_required: in
         conn.close()
         return "❌ Kanalga taklif havolasini yaratishda xatolik yuz berdi."
 
-    # Deduct points from the user
     cursor.execute(
         "UPDATE users SET points = points - ? WHERE user_id = ?",
         (points_required, user_id),

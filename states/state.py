@@ -35,3 +35,11 @@ class Adminid(StatesGroup):
     
 class MessagetoAdmin(StatesGroup):
     msgt = State()
+    
+class UserInformations(StatesGroup):
+    userid_state = State()
+    
+    
+class Addpontstouser(StatesGroup):
+    pointstoadd = State()
+    minuspoints = State()
