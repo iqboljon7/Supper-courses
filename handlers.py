@@ -324,7 +324,7 @@ async def users_butn(message: types.Message):
 
 USERS_PER_PAGE = 10
 
-async def generate_user_list(users, page, bot):
+async def generate_user_list(users, page):
     start_index = (page - 1) * USERS_PER_PAGE
     end_index = start_index + USERS_PER_PAGE
     page_users = users[start_index:end_index]
@@ -359,7 +359,7 @@ async def list_users(message: types.Message):
         return
 
     async def show_users(page=1):
-        user_list = generate_user_list(users, page)
+        user_list = await generate_user_list(users, page)
         user_details = "\n".join(user_list)
         pagination_buttons = create_pagination_buttons(page, len(users))
         await message.answer(
@@ -389,7 +389,7 @@ async def paginate_users(callback_query: types.CallbackQuery):
         )
         return
 
-    user_list = generate_user_list(users, page)
+    user_list =await generate_user_list(users, page)
     user_details = "\n".join(user_list)
     pagination_buttons = create_pagination_buttons(page, len(users))
     await callback_query.message.edit_text(
