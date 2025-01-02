@@ -324,16 +324,18 @@ async def users_butn(message: types.Message):
 
 USERS_PER_PAGE = 10
 
-def generate_user_list(users, page):
+async def generate_user_list(users, page, bot):
     start_index = (page - 1) * USERS_PER_PAGE
     end_index = start_index + USERS_PER_PAGE
     page_users = users[start_index:end_index]
 
-    user_list = [
-        f"{user_id.first_name} (<a href='tg://user?id={user_id}'>{user_id}</a>)"
-        for user_id, phone in page_users
-    ]
+    user_list = []
+    for user_id, phone in page_users:
+        user = await bot.get_chat(user_id)
+        user_list.append(f"{user.first_name} (<a href='tg://user?id={user_id}'>{user_id}</a>)")
+
     return user_list
+
 
 def create_pagination_buttons(page, total_users):
     keyboard = []
