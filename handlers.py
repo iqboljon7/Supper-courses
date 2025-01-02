@@ -12,7 +12,6 @@ from keyboards.inline import generate_courses_keyboard
 from states.middleware import CheckSubscriptionMiddleware
 from aiogram.utils.text_decorations import markdown_decoration as md
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.utils.markdown import escape_md
 
 
 def generate_callback(action: str, admin_id: int) -> str:
@@ -323,15 +322,15 @@ async def users_butn(message: types.Message):
         reply_markup=users_control_button,
     )
 
-
 USERS_PER_PAGE = 10
 
 def generate_user_list(users, page):
     start_index = (page - 1) * USERS_PER_PAGE
     end_index = start_index + USERS_PER_PAGE
     page_users = users[start_index:end_index]
+
     user_list = [
-        f"{escape_md(phone)} (ID: [{user_id}](tg://user?id={user_id}))"
+        f"{phone} (<a href='tg://user?id={user_id}'>{user_id}</a>)"
         for user_id, phone in page_users
     ]
     return user_list
@@ -353,6 +352,7 @@ async def list_users(message: types.Message):
             cursor.execute("SELECT user_id, phone FROM users")
             users = cursor.fetchall()
     except sqlite3.Error as e:
+        print(e)
         await message.answer("Xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.")
         return
 
@@ -361,8 +361,8 @@ async def list_users(message: types.Message):
         user_details = "\n".join(user_list)
         pagination_buttons = create_pagination_buttons(page, len(users))
         await message.answer(
-            f"Foydalanuvchilar ro'yhati ({page} chi sahifa):\n\n{user_details}",
-            parse_mode="MarkdownV2",
+            f"Foydalanuvchilar ro'yhati ({page}-chi sahifa):\n\n{user_details}",
+            parse_mode="HTML",
             reply_markup=pagination_buttons,
         )
 
@@ -377,12 +377,12 @@ async def paginate_users(callback_query: types.CallbackQuery):
             cursor.execute("SELECT user_id, phone FROM users")
             users = cursor.fetchall()
     except sqlite3.Error as e:
+        print(e)
         await callback_query.answer("Xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.", show_alert=True)
         return
-
     if page < 1 or (page - 1) * USERS_PER_PAGE >= len(users):
         await callback_query.answer(
-            "Siz birinchi sahifadasiz!" if page < 1 else "Siz oxirgi sahifadasiz",
+            "Siz birinchi sahifadasiz!" if page < 1 else "Siz oxirgi sahifadasiz!",
             show_alert=True,
         )
         return
@@ -391,13 +391,13 @@ async def paginate_users(callback_query: types.CallbackQuery):
     user_details = "\n".join(user_list)
     pagination_buttons = create_pagination_buttons(page, len(users))
     await callback_query.message.edit_text(
-        f"Foydalanuvchilar ro'yhati ({page} chi sahifa):\n\n{user_details}",
-        parse_mode="MarkdownV2",
+        f"Foydalanuvchilar ro'yhati ({page}-chi sahifa):\n\n{user_details}",
+        parse_mode="HTML",
         reply_markup=pagination_buttons,
     )
     await callback_query.answer()
-
-
+    
+    
 @dp.message(F.text == "🗒 foydalanuvchi ma'lumotlari")
 @admin_required()
 async def info_users(message: types.Message, state: FSMContext):
