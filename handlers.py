@@ -324,23 +324,38 @@ async def users_butn(message: types.Message):
     )
 
 
-@dp.message(F.text == "🪪 foydalanuvchilar ro'yhati")
+USERS_PER_PAGE = 10
+@dp.message(F.text== "🪪 foydalanuvchilar ro'yhati")
 @admin_required()
 async def list_users(message: types.Message):
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
     cursor.execute("SELECT user_id, phone FROM users")
+    global users
     users = cursor.fetchall()
-    USERS_PER_PAGE = 10
+    conn.close()
+
+    async def show_users(page=1):
+        user_list = generate_user_list(page)
+        user_details = "\n".join(user_list)
+        pagination_buttons = create_pagination_buttons(page)
+        await message.answer(
+            f"Foydalanuvchilar ro'yhati({page} chi sahifa):\n\n{user_details}",
+            parse_mode="MarkdownV2",
+            reply_markup=pagination_buttons
+        )
+
     def generate_user_list(page=1):
         start_index = (page - 1) * USERS_PER_PAGE
         end_index = start_index + USERS_PER_PAGE
         page_users = users[start_index:end_index]
+
         user_list = []
         for user in page_users:
             user_id, phone = user
             user_list.append(f"{escape_md(phone)} (ID: [{user_id}](tg://user?id={user_id}))")
         return user_list
+
     def create_pagination_buttons(page):
         keyboard = [
             [
@@ -350,35 +365,49 @@ async def list_users(message: types.Message):
         ]
         return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-    @dp.callback_query(lambda c: c.data.startswith("page_"))
-    async def paginate_users(callback_query: types.CallbackQuery):
-        page = int(callback_query.data.split("_")[1])
-        
-        if page < 1 or (page - 1) * USERS_PER_PAGE >= len(users):
-            await callback_query.answer(
-                "You are already on the first page!" if page < 1 else "You are already on the last page!",
-                show_alert=True
-            )
-            return
-        user_list = generate_user_list(page)
-        user_details = "\n".join(user_list)
-        pagination_buttons = create_pagination_buttons(page)
-        await callback_query.message.edit_text(
-            f"Here are the users (Page {page}):\n\n{user_details}",
-            parse_mode="MarkdownV2",
-            reply_markup=pagination_buttons
-        )
-        await callback_query.answer()
-    async def show_users(page=1):
-        user_list = generate_user_list(page)
-        user_details = "\n".join(user_list)
-        pagination_buttons = create_pagination_buttons(page)
-        await message.answer(
-            f"Here are the users (Page {page}):\n\n{user_details}",
-            parse_mode="MarkdownV2",
-            reply_markup=pagination_buttons
-        )
     await show_users(page=1)
+
+
+@dp.callback_query(lambda c: c.data.startswith("page_"))
+async def paginate_users(callback_query: types.CallbackQuery):
+    page = int(callback_query.data.split("_")[1])
+    
+    if page < 1 or (page - 1) * USERS_PER_PAGE >= len(users):
+        await callback_query.answer(
+            "Siz birinchi sahifadasiz!" if page < 1 else "Siz oxirgi sahifadasiz",
+            show_alert=True
+        )
+        return
+
+    def generate_user_list(page):
+        start_index = (page - 1) * USERS_PER_PAGE
+        end_index = start_index + USERS_PER_PAGE
+        page_users = users[start_index:end_index]
+
+        user_list = []
+        for user in page_users:
+            user_id, phone = user
+            user_list.append(f"{escape_md(phone)} (ID: [{user_id}](tg://user?id={user_id}))")
+        return user_list
+
+    def create_pagination_buttons(page):
+        keyboard = [
+            [
+                InlineKeyboardButton(text="⬅️", callback_data=f"page_{page - 1}"),
+                InlineKeyboardButton(text="➡️", callback_data=f"page_{page + 1}")
+            ]
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+    user_list = generate_user_list(page)
+    user_details = "\n".join(user_list)
+    pagination_buttons = create_pagination_buttons(page)
+    await callback_query.message.edit_text(
+        f"Foydalanuvchilar royhati({page} chi sahifa):\n\n{user_details}",
+        parse_mode="MarkdownV2",
+        reply_markup=pagination_buttons
+    )
+    await callback_query.answer()
 
 @dp.message(F.text == "🗒 foydalanuvchi ma'lumotlari")
 @admin_required()
