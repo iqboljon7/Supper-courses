@@ -325,89 +325,78 @@ async def users_butn(message: types.Message):
 
 
 USERS_PER_PAGE = 10
-@dp.message(F.text== "🪪 foydalanuvchilar ro'yhati")
+
+def generate_user_list(users, page):
+    start_index = (page - 1) * USERS_PER_PAGE
+    end_index = start_index + USERS_PER_PAGE
+    page_users = users[start_index:end_index]
+    user_list = [
+        f"{escape_md(phone)} (ID: [{user_id}](tg://user?id={user_id}))"
+        for user_id, phone in page_users
+    ]
+    return user_list
+
+def create_pagination_buttons(page, total_users):
+    keyboard = []
+    if page > 1:
+        keyboard.append(InlineKeyboardButton(text="⬅️", callback_data=f"page_{page - 1}"))
+    if page * USERS_PER_PAGE < total_users:
+        keyboard.append(InlineKeyboardButton(text="➡️", callback_data=f"page_{page + 1}"))
+    return InlineKeyboardMarkup(inline_keyboard=[keyboard])
+
+@dp.message(F.text == "🪪 foydalanuvchilar ro'yhati")
 @admin_required()
 async def list_users(message: types.Message):
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT user_id, phone FROM users")
-    global users
-    users = cursor.fetchall()
-    conn.close()
+    try:
+        with sqlite3.connect("users.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT user_id, phone FROM users")
+            users = cursor.fetchall()
+    except sqlite3.Error as e:
+        await message.answer("Xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.")
+        return
 
     async def show_users(page=1):
-        user_list = generate_user_list(page)
+        user_list = generate_user_list(users, page)
         user_details = "\n".join(user_list)
-        pagination_buttons = create_pagination_buttons(page)
+        pagination_buttons = create_pagination_buttons(page, len(users))
         await message.answer(
-            f"Foydalanuvchilar ro'yhati({page} chi sahifa):\n\n{user_details}",
+            f"Foydalanuvchilar ro'yhati ({page} chi sahifa):\n\n{user_details}",
             parse_mode="MarkdownV2",
-            reply_markup=pagination_buttons
+            reply_markup=pagination_buttons,
         )
 
-    def generate_user_list(page=1):
-        start_index = (page - 1) * USERS_PER_PAGE
-        end_index = start_index + USERS_PER_PAGE
-        page_users = users[start_index:end_index]
-
-        user_list = []
-        for user in page_users:
-            user_id, phone = user
-            user_list.append(f"{escape_md(phone)} (ID: [{user_id}](tg://user?id={user_id}))")
-        return user_list
-
-    def create_pagination_buttons(page):
-        keyboard = [
-            [
-                InlineKeyboardButton(text="⬅️", callback_data=f"page_{page - 1}"),
-                InlineKeyboardButton(text="➡️", callback_data=f"page_{page + 1}")
-            ]
-        ]
-        return InlineKeyboardMarkup(inline_keyboard=keyboard)
-
     await show_users(page=1)
-
 
 @dp.callback_query(lambda c: c.data.startswith("page_"))
 async def paginate_users(callback_query: types.CallbackQuery):
     page = int(callback_query.data.split("_")[1])
-    
+    try:
+        with sqlite3.connect("users.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT user_id, phone FROM users")
+            users = cursor.fetchall()
+    except sqlite3.Error as e:
+        await callback_query.answer("Xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.", show_alert=True)
+        return
+
     if page < 1 or (page - 1) * USERS_PER_PAGE >= len(users):
         await callback_query.answer(
             "Siz birinchi sahifadasiz!" if page < 1 else "Siz oxirgi sahifadasiz",
-            show_alert=True
+            show_alert=True,
         )
         return
 
-    def generate_user_list(page):
-        start_index = (page - 1) * USERS_PER_PAGE
-        end_index = start_index + USERS_PER_PAGE
-        page_users = users[start_index:end_index]
-
-        user_list = []
-        for user in page_users:
-            user_id, phone = user
-            user_list.append(f"{escape_md(phone)} (ID: [{user_id}](tg://user?id={user_id}))")
-        return user_list
-
-    def create_pagination_buttons(page):
-        keyboard = [
-            [
-                InlineKeyboardButton(text="⬅️", callback_data=f"page_{page - 1}"),
-                InlineKeyboardButton(text="➡️", callback_data=f"page_{page + 1}")
-            ]
-        ]
-        return InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-    user_list = generate_user_list(page)
+    user_list = generate_user_list(users, page)
     user_details = "\n".join(user_list)
-    pagination_buttons = create_pagination_buttons(page)
+    pagination_buttons = create_pagination_buttons(page, len(users))
     await callback_query.message.edit_text(
-        f"Foydalanuvchilar royhati({page} chi sahifa):\n\n{user_details}",
+        f"Foydalanuvchilar ro'yhati ({page} chi sahifa):\n\n{user_details}",
         parse_mode="MarkdownV2",
-        reply_markup=pagination_buttons
+        reply_markup=pagination_buttons,
     )
     await callback_query.answer()
+
 
 @dp.message(F.text == "🗒 foydalanuvchi ma'lumotlari")
 @admin_required()
