@@ -361,7 +361,7 @@ async def state_info_users(message: types.Message, state: FSMContext):
                 user_details = (
                     f"👤 *Shaxsiy kabinet*\n\n"
                     f"🎟 *Maqomi:* {is_admin}\n"
-                    f"📞 *Telefon raqami:* [{user_info['phone']}](tel:{user_info['phone']})\n"
+                    f"📞 *Telefon raqami:* +[{user_info['phone']}](tel:{user_info['phone']})\n"
                     f"🆔 *Foydalanuvchi ID:* [{user_info['user_id']}](tg://user?id={user_info['user_id']})\n"
                     f"👥 *Takliflari soni:* {user_info['referrals']}\n"
                     f"⭐️ *Ballari:* {user_info['points']}\n"
@@ -377,7 +377,7 @@ async def state_info_users(message: types.Message, state: FSMContext):
                     reply_markup=admin_panel_button,
                 )
                 await state.clear()
-
+        await state.clear()
 
 @dp.message(F.text == "➕ bal qo'shish")
 @admin_required()
