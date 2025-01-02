@@ -337,12 +337,12 @@ async def statistics(message: types.Message, state: FSMContext):
         )
         await message.answer(
             f"Habaringiz adminga muvaffaqiyatli yuborildi ✅",
-            reply_markup=get_main_menu,
+            reply_markup=await get_main_menu(message.from_user.id),
         )
         await state.clear()
     else:
         await state.clear()
-        await message.answer(f"Siz asosiy menudasiz 👇", reply_markup=get_main_menu)
+        await message.answer(f"Siz asosiy menudasiz 👇", reply_markup=await get_main_menu(message.from_user.id))
 
 @dp.message(F.text == "📊 Statistika")
 @admin_required()
