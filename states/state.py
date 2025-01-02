@@ -32,3 +32,6 @@ class msgtoindividual(StatesGroup):
 
 class Adminid(StatesGroup):
     admin_id = State()
+    
+class MessagetoAdmin(StatesGroup):
+    msgt = State()

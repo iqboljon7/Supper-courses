@@ -13,8 +13,10 @@ from states.middleware import CheckSubscriptionMiddleware
 from aiogram.utils.text_decorations import markdown_decoration as md
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+
 def generate_callback(action: str, admin_id: int) -> str:
     return f"{action}:{admin_id}"
+
 
 @dp.message(F.text == "ortga qaytish 🔙")
 @admin_required()
@@ -37,7 +39,7 @@ async def cancel_butt(message: types.Message, state: FSMContext):
 @admin_required()
 async def admin_panel(message: types.Message):
     await message.answer("Siz admin panelidasiz ⬇️", reply_markup=admin_panel_button)
-    
+
 
 @dp.message(F.text == "➕ Kanallar")
 @admin_required()
@@ -268,7 +270,8 @@ async def process_course_points(message: types.Message, state: FSMContext):
     points = message.text.strip()
     if not points.isdigit() or int(points) <= 0:
         await message.answer(
-            "❌ Siz noto'g'ri ma'lumot kiritdingiz. Iltimos, musbat son kiriting.",  reply_markup=admin_panel_button
+            "❌ Siz noto'g'ri ma'lumot kiritdingiz. Iltimos, musbat son kiriting.",
+            reply_markup=admin_panel_button,
         )
         return
 
@@ -278,9 +281,12 @@ async def process_course_points(message: types.Message, state: FSMContext):
         await add_course(data["just_name"], data["waiting_for_course_username"], points)
     except Exception as e:
         await message.answer(
-            "❌ Kursni qo'shishda xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.", reply_markup=admin_panel_button
+            "❌ Kursni qo'shishda xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.",
+            reply_markup=admin_panel_button,
         )
-        print(f"Error adding course: {e}",)
+        print(
+            f"Error adding course: {e}",
+        )
         return
 
     username_display = data["waiting_for_course_username"]
@@ -311,6 +317,37 @@ async def show_courses(message: types.Message):
 @admin_required()
 async def statistics(message: types.Message):
     await message.answer(f"Ishlovda ...")
+
+
+@dp.message(F.text == "ortga qaytish 🚫")
+async def statistics(message: types.Message, state: FSMContext):
+    await state.clear()
+    await message.answer(f"Siz asosiy menudasiz 👇", reply_markup=get_main_menu)
+
+
+@dp.message(F.text == "❓ help")
+async def statistics(message: types.Message, state: FSMContext):
+    await message.answer(
+        f"Bot haqida savol va takliflaringiz bo'lsa shu yerda yozib qoldirishingiz mumkin ⬇️",
+        reply_markup=back_button_everyone,
+    )
+    await state.set_state(MessagetoAdmin.msgt)
+
+
+@dp.message(MessagetoAdmin.msgt)
+async def statistics(message: types.Message, state: FSMContext):
+    if message.text != "ortga qaytish 🚫":
+        await bot.send_message(
+            chat_id=6807731973,
+            text=f"Foydalanuvchi — {message.from_user.first_name (message.from_user.id)} sizga habar yubordi: \n{message.text}",
+        )
+        await message.answer(
+            f"Habaringiz adminga muvaffaqiyatli yuborildi ✅",
+            reply_markup=get_main_menu,
+        )
+        await state.clear()
+
+
 @dp.message(F.text == "📊 Statistika")
 @admin_required()
 async def statistics(message: types.Message):
@@ -476,30 +513,45 @@ async def admins_button(message: types.Message):
     )
 
 
-
 @dp.message(F.text == "➕ Admin qo'shish")
 @admin_required()
 async def add_admin_command(message: types.Message, state: FSMContext):
-    await message.answer(f"Admin etib tayinlamoqchi bo'lgan foydalanuvchini ID raqamini kiriting.", reply_markup=back_button)
+    await message.answer(
+        f"Admin etib tayinlamoqchi bo'lgan foydalanuvchini ID raqamini kiriting.",
+        reply_markup=back_button,
+    )
     await state.set_state(Adminid.admin_id)
-    
+
+
 @dp.message(Adminid.admin_id)
 async def add_admin_state(message: types.Message, state: FSMContext):
     i_d = message.text.strip()
     if not i_d.isdigit():
-        await message.answer(f"❌ Kiritlgan ma'lumot noto'g'ri. Qaytadan urinib ko'ring", reply_markup=back_button)
+        await message.answer(
+            f"❌ Kiritlgan ma'lumot noto'g'ri. Qaytadan urinib ko'ring",
+            reply_markup=back_button,
+        )
     elif not check_user_exists(i_d):
-        await message.answer(f"❌ Foydalanuvchi topilmadi yoki u botning a'zosi emas.", reply_markup=admin_panel_button)
+        await message.answer(
+            f"❌ Foydalanuvchi topilmadi yoki u botning a'zosi emas.",
+            reply_markup=admin_panel_button,
+        )
         await state.clear()
     else:
         try:
             user_id = int(message.text.strip())
             add_admin(user_id)
             print(list(get_admins()))
-            await message.answer(f"✅ User {user_id} has been added as an admin.", reply_markup=admin_panel_button)
+            await message.answer(
+                f"✅ User {user_id} has been added as an admin.",
+                reply_markup=admin_panel_button,
+            )
             await state.clear()
         except ValueError:
-            await message.answer("❌ Kiritlgan ma'lumot noto'g'ri. Qaytadan urinib ko'ring", reply_markup=back_button)
+            await message.answer(
+                "❌ Kiritlgan ma'lumot noto'g'ri. Qaytadan urinib ko'ring",
+                reply_markup=back_button,
+            )
 
 
 @dp.message(F.text == "🧾 Adminlar ro'yhati")
@@ -521,8 +573,10 @@ async def list_admins(message: types.Message):
 
     await message.answer("Adminlar ro'yxati:", reply_markup=keyboard.as_markup())
 
+
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 
 @dp.callback_query(F.data.startswith("delete_admin"))
 async def delete_admin_callback(query: types.CallbackQuery):
@@ -549,8 +603,7 @@ async def delete_admin_callback(query: types.CallbackQuery):
             keyboard_builder = InlineKeyboardBuilder()
             for admin in remaining_admins:
                 keyboard_builder.button(
-                    text=f"❌ Admin {admin}",
-                    callback_data=f"delete_admin:{admin}"
+                    text=f"❌ Admin {admin}", callback_data=f"delete_admin:{admin}"
                 )
             keyboard = keyboard_builder.as_markup()
             await query.message.edit_reply_markup(reply_markup=keyboard)

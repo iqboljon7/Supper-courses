@@ -21,6 +21,8 @@ async def get_main_menu(user_id: int):
         [
             KeyboardButton(text="👤 Shaxsiy kabinet"),
             KeyboardButton(text="🧩 Bot haqida"),
+            KeyboardButton(text="❓ help"),
+            
         ],
     ]
     if is_admin:
@@ -56,6 +58,14 @@ back_button = ReplyKeyboardMarkup(
     resize_keyboard=True,
 )
 
+back_button_everyone = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="ortga qaytish 🚫"),
+        ],
+    ],
+    resize_keyboard=True,
+)
 
 add_must_channel = ReplyKeyboardMarkup(
     keyboard=[
