@@ -571,7 +571,7 @@ async def games_butnn(message: types.Message):
 
 
 @dp.message(F.text == "ortga 🔙")
-async def games_butnn(message: types.Message):
+async def games_bun(message: types.Message):
     await message.answer(f"Siz o'yinlar bo'limidasiz.", reply_markup=games_button)
 
 
@@ -589,7 +589,7 @@ async def send_dice(message: types.Message):
 
 
 @dp.message(F.text == "asosiy menu 🔙")
-async def send_dice(message: types.Message):
+async def asosiy_menu(message: types.Message):
     await message.answer(
         f"Siz asosiy menudasiz 👇",
         reply_markup=await get_main_menu(message.from_user.id),
@@ -622,12 +622,12 @@ async def send_dice(message: types.Message):
     else:
         await message.answer(
             f"Sizda yetarlicha ballar yo'q 😕\nKo'proq do'stlaringizni taklif qiling va ballarni ishlang.",
-            reply_markup=games_butnn,
+            reply_markup=games_button,
         )
 
 
 @dp.message(F.text == "⚽️ soccer")
-async def send_dice(message: types.Message):
+async def send_soccer(message: types.Message):
     await message.answer(
         f"⚽️ *Dice o'yiniga xush kelibsiz*\n\n"
         f"➡️ Har bir urinish uchun *2 ball* hisobingizdan yechiladi\n"
@@ -640,7 +640,7 @@ async def send_dice(message: types.Message):
 
 
 @dp.message(F.text == "⚽️ boshlash")
-async def send_dice(message: types.Message):
+async def start_soccer(message: types.Message):
     user_id = message.from_user.id
     result = get_user_points(user_id)
     if result > 1:
@@ -671,7 +671,7 @@ async def send_dice(message: types.Message):
     else:
         await message.answer(
             f"Sizda yetarlicha ballar yo'q 😕\nKo'proq do'stlaringizni taklif qiling va ballarni ishlang.",
-            reply_markup=games_butnn,
+            reply_markup=games_button,
         )
 
 
