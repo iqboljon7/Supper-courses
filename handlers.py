@@ -599,13 +599,12 @@ async def send_dice(message: types.Message):
 @dp.message(F.text == "🎲 boshlash")
 async def send_dice(message: types.Message):
     user_id = message.from_user.id
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
     result = get_user_points(user_id)
-    print(result)
     if result > 2:
         sent_message = await message.answer_dice(emoji="🎲")
         res = sent_message.dice.value
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
         cursor.execute(
             "UPDATE users SET points = points - ? WHERE user_id = ?",
             (3, user_id),
@@ -619,6 +618,7 @@ async def send_dice(message: types.Message):
             "UPDATE users SET points = points + ? WHERE user_id = ?",
             (res, user_id),
         )
+        conn.close()
     else:
         await message.answer(
             f"Sizda yetarlicha ballar yo'q 😕\nKo'proq do'stlaringizni taklif qiling va ballarni ishlang.",
@@ -642,12 +642,12 @@ async def send_dice(message: types.Message):
 @dp.message(F.text == "⚽️ boshlash")
 async def send_dice(message: types.Message):
     user_id = message.from_user.id
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
     result = get_user_points(user_id)
     if result > 1:
         sent_message = await message.answer_dice(emoji="⚽️")
         res = sent_message.dice.value
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
         cursor.execute(
             "UPDATE users SET points = points - ? WHERE user_id = ?",
             (2, user_id),
@@ -667,6 +667,7 @@ async def send_dice(message: types.Message):
                 "UPDATE users SET points = points + ? WHERE user_id = ?",
                 (4, user_id),
             )
+        conn.close()
     else:
         await message.answer(
             f"Sizda yetarlicha ballar yo'q 😕\nKo'proq do'stlaringizni taklif qiling va ballarni ishlang.",
