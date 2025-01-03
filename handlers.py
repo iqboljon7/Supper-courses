@@ -1,4 +1,6 @@
 import sqlite3
+import asyncio
+import random
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from config import *
@@ -322,7 +324,9 @@ async def users_butn(message: types.Message):
         reply_markup=users_control_button,
     )
 
+
 USERS_PER_PAGE = 10
+
 
 def generate_user_list(users, page):
     start_index = (page - 1) * USERS_PER_PAGE
@@ -335,13 +339,19 @@ def generate_user_list(users, page):
 
     return user_list
 
+
 def create_pagination_buttons(page, total_users):
     keyboard = []
     if page > 1:
-        keyboard.append(InlineKeyboardButton(text="⬅️", callback_data=f"page_{page - 1}"))
+        keyboard.append(
+            InlineKeyboardButton(text="⬅️", callback_data=f"page_{page - 1}")
+        )
     if page * USERS_PER_PAGE < total_users:
-        keyboard.append(InlineKeyboardButton(text="➡️", callback_data=f"page_{page + 1}"))
+        keyboard.append(
+            InlineKeyboardButton(text="➡️", callback_data=f"page_{page + 1}")
+        )
     return InlineKeyboardMarkup(inline_keyboard=[keyboard])
+
 
 @dp.message(F.text == "🪪 foydalanuvchilar ro'yhati")
 @admin_required()
@@ -368,6 +378,7 @@ async def list_users(message: types.Message):
 
     await show_users(page=1)
 
+
 @dp.callback_query(lambda c: c.data.startswith("page_"))
 async def paginate_users(callback_query: types.CallbackQuery):
     page = int(callback_query.data.split("_")[1])
@@ -378,7 +389,9 @@ async def paginate_users(callback_query: types.CallbackQuery):
             users = cursor.fetchall()
     except sqlite3.Error as e:
         print(e)
-        await callback_query.answer("Xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.", show_alert=True)
+        await callback_query.answer(
+            "Xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.", show_alert=True
+        )
         return
     if page < 1 or (page - 1) * USERS_PER_PAGE >= len(users):
         await callback_query.answer(
@@ -396,8 +409,8 @@ async def paginate_users(callback_query: types.CallbackQuery):
         reply_markup=pagination_buttons,
     )
     await callback_query.answer()
-    
-    
+
+
 @dp.message(F.text == "🗒 foydalanuvchi ma'lumotlari")
 @admin_required()
 async def info_users(message: types.Message, state: FSMContext):
@@ -448,6 +461,7 @@ async def state_info_users(message: types.Message, state: FSMContext):
                 await state.clear()
         await state.clear()
 
+
 @dp.message(F.text == "➕ bal qo'shish")
 @admin_required()
 async def info_users(message: types.Message, state: FSMContext):
@@ -480,8 +494,14 @@ async def state_info_users(message: types.Message, state: FSMContext):
                 "UPDATE users SET points =  ? WHERE user_id = ?",
                 (up_points, user_id),
             )
-            await bot.send_message(chat_id=user_id, text=f"Admin tomonidan hisobingizga {text} ball qo'shildi ✅")
-            await message.answer(f"Foydalanuvchi hisobiga {text} ball qo'shildi ✅", reply_markup=admin_panel_button)
+            await bot.send_message(
+                chat_id=user_id,
+                text=f"Admin tomonidan hisobingizga {text} ball qo'shildi ✅",
+            )
+            await message.answer(
+                f"Foydalanuvchi hisobiga {text} ball qo'shildi ✅",
+                reply_markup=admin_panel_button,
+            )
             await state.clear()
         except TelegramBadRequest as e:
             await message.answer(
@@ -490,8 +510,7 @@ async def state_info_users(message: types.Message, state: FSMContext):
             )
         conn.commit()
         conn.close()
-    
-    
+
 
 @dp.message(F.text == "➖ bal ayrish")
 @admin_required()
@@ -525,8 +544,14 @@ async def state_info_users(message: types.Message, state: FSMContext):
                 "UPDATE users SET points =  ? WHERE user_id = ?",
                 (up_points, user_id),
             )
-            await bot.send_message(chat_id=user_id, text=f"Admin tomonidan hisobingizdan {text} ball ayrildi 🤕")
-            await message.answer(f"Foydalanuvchi hisobidan {text} ball ayrildi ✅", reply_markup=admin_panel_button)
+            await bot.send_message(
+                chat_id=user_id,
+                text=f"Admin tomonidan hisobingizdan {text} ball ayrildi 🤕",
+            )
+            await message.answer(
+                f"Foydalanuvchi hisobidan {text} ball ayrildi ✅",
+                reply_markup=admin_panel_button,
+            )
             await state.clear()
         except TelegramBadRequest as e:
             await message.answer(
@@ -537,10 +562,154 @@ async def state_info_users(message: types.Message, state: FSMContext):
         conn.close()
 
 
-
 @dp.message(F.text == "🕹 o'yinlar")
 async def games_butnn(message: types.Message):
-    await message.answer(f"⚙️ Ishlovda ...")
+    await message.answer(
+        f"Bu bo'limda siz qiziqarli o'yinlar orqali ballaringizni ko'paytirib olishingiz mumkin.\nQuidagilardan birini tanlang 👇",
+        reply_markup=games_button,
+    )
+
+
+@dp.message(F.text == "ortga 🔙")
+async def games_butnn(message: types.Message):
+    await message.answer(f"Siz o'yinlar bo'limidasiz.", reply_markup=games_button)
+
+
+@dp.message(F.text == "🎲 dice")
+async def send_dice(message: types.Message):
+    await message.answer(
+        f"🎲 *Dice o'yiniga xush kelibsiz*\n\n"
+        f"➡️ Har bir tashlangan 🎲 uchun *3 ball* hisobingizdan yechiladi\n"
+        f"🎁 *Sovrin*: Sizga nechchi son tushsa, o‘sha son ball sifatida hisobingizga qo‘shiladi 💵\n\n"
+        f"💳 *Sizning hisobingiz:* {get_user_points(message.from_user.id)} ball\n\n"
+        f"O'yinni boshlash uchun pastdagi tugmani bosing 👇",
+        parse_mode="MarkdownV2",
+        reply_markup=dice_play,
+    )
+
+
+@dp.message(F.text == "🎲 boshlash")
+async def send_dice(message: types.Message):
+    user_id = message.from_user.id
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+    result = result[0]
+    if result > 2:
+        sent_message = await message.answer_dice(emoji="🎲")
+        res = sent_message.dice.value
+        cursor.execute(
+            "UPDATE users SET points = points - ? WHERE user_id = ?",
+            (3, user_id),
+        )
+        await asyncio.sleep(3)
+        await message.answer(
+            f"*️⃣ Tushgan raqam — {res}\nHisobingizga {res} ball qo'shildi 🎉\nYana o'ynash uchun pastdagi tugmani bosing👇",
+            reply_markup=dice_play,
+        )
+        cursor.execute(
+            "UPDATE users SET points = points + ? WHERE user_id = ?",
+            (res, user_id),
+        )
+
+
+@dp.message(F.text == "⚽️ soccer")
+async def send_dice(message: types.Message):
+    await message.answer(
+        f"⚽️ *Dice o'yiniga xush kelibsiz*\n\n"
+        f"➡️ Har bir urinish uchun *2 ball* hisobingizdan yechiladi\n"
+        f"🎁 *Sovrin*: Agar go'l urilsa sizga 4 ball beriladi aks holda 0 ball olasiz💵\n\n"
+        f"💳 *Sizning hisobingiz:* {get_user_points(message.from_user.id)} ball\n\n"
+        f"O'yinni boshlash uchun pastdagi tugmani bosing 👇",
+        parse_mode="MarkdownV2",
+        reply_markup=soccer_play,
+    )
+
+
+@dp.message(F.text == "⚽️ boshlash")
+async def send_dice(message: types.Message):
+    user_id = message.from_user.id
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+    result = result[0]
+    if result > 1:
+        sent_message = await message.answer_dice(emoji="⚽️")
+        res = sent_message.dice.value
+        cursor.execute(
+            "UPDATE users SET points = points - ? WHERE user_id = ?",
+            (2, user_id),
+        )
+        await asyncio.sleep(3)
+        if res < 3:
+            await message.answer(
+                f"Afsuski go'l ura olmadingiz 😕\nYana o'ynash uchun pastdagi tugmani bosing👇",
+                reply_markup=soccer_play,
+            )
+        else:
+            await message.answer(
+                f"go'l urildi 🥳🥳🥳\nHisobingizga 6 ball qo'shildi 🎉\nYana o'ynash uchun pastdagi tugmani bosing👇",
+                reply_markup=soccer_play,
+            )
+            cursor.execute(
+                "UPDATE users SET points = points + ? WHERE user_id = ?",
+                (4, user_id),
+            )
+
+def create_random_game_buttons():
+    buttons = [
+        InlineKeyboardButton(text=str(["1️⃣","2️⃣","3️⃣"][i-1]), callback_data=f"choose_{i}")
+        for i in range(1, 4)
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=[buttons])
+@dp.message(F.text == "🎰 radnom")
+async def send_random_game(message: types.Message):
+    user_points = get_user_points(message.from_user.id)
+    await message.answer(
+        f"🎰 *Random o'yiniga xush kelibsiz*\n"
+        f"➡️ Har bir urinish uchun *3 ball* hisobingizdan yechiladi\n"
+        f"🎁 *Sovrin*: Agar siz tanlagan son va random tanlagan son bir biriga to'g'ri kelsa, balingiz 2 barobar bo'lib qaytadi. Aks holda, 0 ball olasiz.💵\n\n"
+        f"💳 *Sizning hisobingiz:* {user_points} ball\n\n"
+        f"O'yinni boshlash uchun pastdagi uchta tugmadan birini bosing 👇",
+        parse_mode="MarkdownV2",
+        reply_markup=create_random_game_buttons(),
+    )
+
+@dp.callback_query(lambda c: c.data.startswith("choose_"))
+async def process_random_choice(callback_query: types.CallbackQuery):
+    user_id = callback_query.from_user.id
+    user_choice = int(callback_query.data.split("_")[1])
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+    user_points = result[0] if result else 0
+    if user_points < 3:
+        await callback_query.answer("Sizda yetarlicha ball mavjud emas!", show_alert=True)
+        return
+    new_points = user_points - 3
+    random_choice = random.randint(1, 3)
+    if user_choice == random_choice:
+        new_points += 6
+        message = (
+            f"Random tanlagan son: {random_choice}\n"
+            f"Siz tanlagan son: {user_choice}\n"
+            f"Sizga *6 ball* qo'shildi!"
+        )
+    else:
+        message = (
+            f"Random tanlagan son: {random_choice}\n"
+            f"Siz tanlagan son: {user_choice}\n"
+            f"Afsuski, yutolmadingiz. 😔"
+        )
+    cursor.execute(
+        "UPDATE users SET points = ? WHERE user_id = ?", (new_points, user_id)
+    )
+    conn.commit()
+    conn.close()
+    await callback_query.answer(message, show_alert=True)
 
 
 @dp.message(F.text == "❓ help")

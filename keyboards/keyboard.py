@@ -152,3 +152,42 @@ edit_user_info = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True,
 )
+
+games_button = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="🎲 dice"),
+            KeyboardButton(text="⚽️ soccer"),
+            KeyboardButton(text="🎰 radnom"),
+        ],
+        [
+            KeyboardButton(text="asosiy menu 🔙"),
+        ],
+    ],
+    resize_keyboard=True,
+)
+
+
+dice_play = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="🎲 boshlash"),
+        ],
+        [
+            KeyboardButton(text="ortga 🔙"),
+        ],
+    ],
+    resize_keyboard=True,
+)
+
+soccer_play = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="⚽️ boshlash"),
+        ],
+        [
+            KeyboardButton(text="ortga 🔙"),
+        ],
+    ],
+    resize_keyboard=True,
+)

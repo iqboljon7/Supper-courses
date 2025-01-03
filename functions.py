@@ -225,6 +225,19 @@ def get_user_info(user_id: int) -> dict:
             "points": user[3],
         }
     return None
+def get_user_points(user_id):
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT points FROM users WHERE user_id = ?",
+        (user_id,)
+    )
+    user = cursor.fetchone()
+    conn.close()
+
+    if user: return user[0]
+    return None
 
 
 def get_courses():
