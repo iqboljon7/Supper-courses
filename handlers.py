@@ -602,6 +602,7 @@ async def send_dice(message: types.Message):
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
     result = get_user_points(user_id)
+    print(result)
     if result > 2:
         sent_message = await message.answer_dice(emoji="🎲")
         res = sent_message.dice.value
@@ -691,7 +692,7 @@ async def send_random_game(message: types.Message):
     await message.answer(
         f"🎰 *Random o'yiniga xush kelibsiz*\n"
         f"➡️ Har bir urinish uchun *3 ball* hisobingizdan yechiladi\n"
-        f"🎁 *Sovrin*: Agar siz tanlagan son va random tanlagan son bir biriga to'g'ri kelsa, balingiz 2 barobar bo'lib qaytadi. Aks holda, 0 ball olasiz.💵\n\n"
+        f"🎁 *Sovrin*: Agar siz tanlagan son va random tanlagan son bir biriga to'g'ri kelsa, balingiz 2 barobar bo'lib qaytadi💵\n\n"
         f"💳 *Sizning hisobingiz:* {user_points} ball\n\n"
         f"O'yinni boshlash uchun pastdagi uchta tugmadan birini bosing 👇",
         parse_mode="MarkdownV2",
