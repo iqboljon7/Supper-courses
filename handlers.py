@@ -56,7 +56,7 @@ async def list_channels(message: types.Message, state: FSMContext):
 @admin_required()
 async def add_channels__(message: types.Message, state: FSMContext):
     await message.answer(
-        "Qo'shmoqchi bo'lgan kanalning foydalanuvchi nomini (@username) kiriting",
+        "Qo'shmoqchi bo'lgan kanalning foydalanuvchi nomini (@username) yoki ID sini kiriting",
         reply_markup=back_button,
     )
     await state.set_state(AddChannel.waiting_for_channel_name)
@@ -661,7 +661,7 @@ async def start_soccer(message: types.Message):
             )
         else:
             await message.answer(
-                f"go'l urildi 🥳🥳🥳\nHisobingizga 6 ball qo'shildi 🎉\nYana o'ynash uchun pastdagi tugmani bosing👇",
+                f"go'l urildi 🥳🥳🥳\nHisobingizga 4 ball qo'shildi 🎉\nYana o'ynash uchun pastdagi tugmani bosing👇",
                 reply_markup=soccer_play,
             )
             cursor.execute(
