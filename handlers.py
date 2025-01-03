@@ -588,6 +588,14 @@ async def send_dice(message: types.Message):
     )
 
 
+@dp.message(F.text == "asosiy menu 🔙")
+async def send_dice(message: types.Message):
+    await message.answer(
+        f"Siz asosiy menudasiz 👇",
+        reply_markup=await get_main_menu(message.from_user.id),
+    )
+
+
 @dp.message(F.text == "🎲 boshlash")
 async def send_dice(message: types.Message):
     user_id = message.from_user.id
@@ -667,6 +675,7 @@ async def send_dice(message: types.Message):
             f"Sizda yetarlicha ballar yo'q 😕\nKo'proq do'stlaringizni taklif qiling va ballarni ishlang.",
             reply_markup=games_butnn,
         )
+
 
 def create_random_game_buttons():
     buttons = [
