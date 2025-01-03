@@ -612,6 +612,11 @@ async def send_dice(message: types.Message):
             "UPDATE users SET points = points + ? WHERE user_id = ?",
             (res, user_id),
         )
+    else:
+        await message.answer(
+            f"Sizda yetarlicha ballar yo'q 😕\nKo'proq do'stlaringizni taklif qiling va ballarni ishlang.",
+            reply_markup=games_butnn,
+        )
 
 
 @dp.message(F.text == "⚽️ soccer")
@@ -657,13 +662,22 @@ async def send_dice(message: types.Message):
                 "UPDATE users SET points = points + ? WHERE user_id = ?",
                 (4, user_id),
             )
+    else:
+        await message.answer(
+            f"Sizda yetarlicha ballar yo'q 😕\nKo'proq do'stlaringizni taklif qiling va ballarni ishlang.",
+            reply_markup=games_butnn,
+        )
 
 def create_random_game_buttons():
     buttons = [
-        InlineKeyboardButton(text=str(["1️⃣","2️⃣","3️⃣"][i-1]), callback_data=f"choose_{i}")
+        InlineKeyboardButton(
+            text=str(["1️⃣", "2️⃣", "3️⃣"][i - 1]), callback_data=f"choose_{i}"
+        )
         for i in range(1, 4)
     ]
     return InlineKeyboardMarkup(inline_keyboard=[buttons])
+
+
 @dp.message(F.text == "🎰 radnom")
 async def send_random_game(message: types.Message):
     user_points = get_user_points(message.from_user.id)
@@ -677,6 +691,7 @@ async def send_random_game(message: types.Message):
         reply_markup=create_random_game_buttons(),
     )
 
+
 @dp.callback_query(lambda c: c.data.startswith("choose_"))
 async def process_random_choice(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
@@ -687,7 +702,9 @@ async def process_random_choice(callback_query: types.CallbackQuery):
     result = cursor.fetchone()
     user_points = result[0] if result else 0
     if user_points < 3:
-        await callback_query.answer("Sizda yetarlicha ball mavjud emas!", show_alert=True)
+        await callback_query.answer(
+            "Sizda yetarlicha ball mavjud emas!", show_alert=True
+        )
         return
     new_points = user_points - 3
     random_choice = random.randint(1, 3)
