@@ -156,8 +156,8 @@ edit_user_info = ReplyKeyboardMarkup(
 games_button = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="🎲 dice"),
-            KeyboardButton(text="⚽️ soccer"),
+            # KeyboardButton(text="🎲 dice"),
+            # KeyboardButton(text="⚽️ soccer"),
             KeyboardButton(text="🎰 radnom"),
         ],
         [

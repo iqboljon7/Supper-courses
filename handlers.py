@@ -644,9 +644,7 @@ async def send_dice(message: types.Message):
     user_id = message.from_user.id
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT points FROM users WHERE user_id = ?", (user_id,))
-    result = cursor.fetchone()
-    result = result[0]
+    result = get_user_points(user_id)
     if result > 1:
         sent_message = await message.answer_dice(emoji="⚽️")
         res = sent_message.dice.value
@@ -721,7 +719,7 @@ async def process_random_choice(callback_query: types.CallbackQuery):
         message = (
             f"Random tanlagan son: {random_choice}\n"
             f"Siz tanlagan son: {user_choice}\n"
-            f"Sizga *6 ball* qo'shildi!"
+            f"Sizga 6 ball qo'shildi! 🥳🥳🥳"
         )
     else:
         message = (
