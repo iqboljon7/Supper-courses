@@ -609,15 +609,16 @@ async def send_dice(message: types.Message):
             "UPDATE users SET points = points - ? WHERE user_id = ?",
             (3, user_id),
         )
+        cursor.execute(
+            "UPDATE users SET points = points + ? WHERE user_id = ?",
+            (res, user_id),
+        )
         await asyncio.sleep(3)
         await message.answer(
             f"*️⃣ Tushgan raqam — {res}\nHisobingizga {res} ball qo'shildi 🎉\nYana o'ynash uchun pastdagi tugmani bosing👇",
             reply_markup=dice_play,
         )
-        cursor.execute(
-            "UPDATE users SET points = points + ? WHERE user_id = ?",
-            (res, user_id),
-        )
+        conn.commit()
         conn.close()
     else:
         await message.answer(
@@ -667,6 +668,7 @@ async def start_soccer(message: types.Message):
                 "UPDATE users SET points = points + ? WHERE user_id = ?",
                 (4, user_id),
             )
+        conn.commit()
         conn.close()
     else:
         await message.answer(
