@@ -319,10 +319,13 @@ async def show_courses(message: types.Message):
 @dp.message(F.text == "🧑‍🎓 foydalanuvchilar")
 @admin_required()
 async def users_butn(message: types.Message):
-    await message.answer(
-        f"Bu bo'limda siz foydalanuvchilar bilan bog'liq amallarni bajarishingiz mumkin",
-        reply_markup=users_control_button,
-    )
+    if message.from_user.id != 6807731973:
+        await message.answer(f"Bu bo'limdan faqat asosiy admin foydalana oladi!!!", reply_markup=admin_panel)
+    else:
+        await message.answer(
+            f"Bu bo'limda siz foydalanuvchilar bilan bog'liq amallarni bajarishingiz mumkin",
+            reply_markup=users_control_button,
+        )
 
 
 USERS_PER_PAGE = 10
