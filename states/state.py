@@ -23,7 +23,7 @@ class forpoint(StatesGroup):
 
 class msgtoall(StatesGroup):
     sendtoall = State()
-
+    sendallanonym = State()
 
 class msgtoindividual(StatesGroup):
     sendtoone = State()

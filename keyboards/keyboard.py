@@ -191,3 +191,16 @@ soccer_play = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True,
 )
+
+send_all = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="forward ⏩"),
+             KeyboardButton(text="anonym 👤"),
+        ],
+        [
+            KeyboardButton(text="Bekor qilish 🚫"),
+        ],
+    ],
+    resize_keyboard=True,
+)
