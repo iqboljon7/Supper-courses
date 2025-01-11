@@ -864,7 +864,7 @@ async def state_send_msg_to_individual(message: types.Message, state: FSMContext
     await state.set_state(msgtoindividual.sendtoone)
 
 
-@dp.message(msgtoindividual.sendtoone, content_types=types.ContentType.ANY)
+@dp.message(msgtoindividual.sendtoone)
 async def state_forward_message_to_individual(message: types.Message, state: FSMContext):
     data = await state.get_data()
     user_id = int(data["userid"])
