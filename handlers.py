@@ -818,12 +818,11 @@ async def state_send_msg_to_all_stat(message: types.Message, state: FSMContext):
 
 async def forward_message_to_all_users(from_chat_id: int, message_id: int, admin_id: int):
     users = get_all_user_ids(admin_id)
-
     for user_id in users:
         try:
             await bot.forward_message(chat_id=user_id, from_chat_id=from_chat_id, message_id=message_id)
         except Exception as e:
-            return
+            continue
 
 
 @dp.message(F.text == "📩 Alohida habar yuborish")
