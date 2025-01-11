@@ -633,7 +633,7 @@ async def send_dice(message: types.Message):
 @dp.message(F.text == "⚽️ soccer")
 async def send_soccer(message: types.Message):
     await message.answer(
-        f"⚽️ *Dice o'yiniga xush kelibsiz*\n\n"
+        f"⚽️ *Soccer o'yiniga xush kelibsiz*\n\n"
         f"➡️ Har bir urinish uchun *2 ball* hisobingizdan yechiladi\n"
         f"🎁 *Sovrin*: Agar go'l urilsa sizga 4 ball beriladi aks holda 0 ball olasiz💵\n\n"
         f"💳 *Sizning hisobingiz:* {get_user_points(message.from_user.id)} ball\n\n"
@@ -807,64 +807,81 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
 
 @dp.message(msgtoall.sendtoall)
 async def state_send_msg_to_all_stat(message: types.Message, state: FSMContext):
-    msg_text = message.text
-    await send_message_to_all_users(msg_text, message.from_user.id)
+    message_id = message.message_id
+    from_chat_id = message.chat.id
+    await forward_message_to_all_users(from_chat_id, message_id, message.from_user.id)
     await message.answer(
-        f"Xabar barcha foydalanuvchilarga muvaffaqiyatli yuborildi ✅",
+        "Xabar barcha foydalanuvchilarga muvaffaqiyatli yuborildi ✅",
         reply_markup=admin_panel_button,
     )
     await state.clear()
+
+async def forward_message_to_all_users(from_chat_id: int, message_id: int, admin_id: int):
+    users = await get_all_user_ids(admin_id)
+
+    for user_id in users:
+        try:
+            await bot.forward_message(chat_id=user_id, from_chat_id=from_chat_id, message_id=message_id)
+        except Exception as e:
+            return
 
 
 @dp.message(F.text == "📩 Alohida habar yuborish")
 @admin_required()
 async def send_message_to_all(message: types.Message, state: FSMContext):
     await message.answer(
-        f"Habar yubormoqchi bo'lgan foydalanuvchining ID raqamini kiriting 📝",
+        "Habar yubormoqchi bo'lgan foydalanuvchining ID raqamini kiriting 📝",
         reply_markup=back_button,
     )
     await state.set_state(msgtoindividual.userid)
 
 
 @dp.message(msgtoindividual.userid)
-async def state_send_msg_to_all_state(message: types.Message, state: FSMContext):
+async def state_send_msg_to_individual(message: types.Message, state: FSMContext):
     user_id = message.text.strip()
     if not user_id.isdigit():
         await message.answer(
             "Siz noto'g'ri ma'lumot kiritdingiz. Qaytadan urinib ko'ring."
         )
-    else:
-        if user_id == message.from_user.id:
-            await message.answer(
-                f"Siz o'zingizga o'zingiz habar yubora olmaysiz.",
-                reply_markup=admin_panel_button,
-            )
-            await state.clear()
-            return
-        if not check_user_exists(int(user_id)):
-            await message.answer(
-                f"Berilgan ID orqali hech qanday foydalanuvchi topilmadi.",
-                reply_markup=admin_panel_button,
-            )
-            await state.clear()
-        else:
-            await state.update_data(userid=user_id)
-            await message.answer(f"Endi esa yuborish kerak bo'lgan matnni kiriting.")
-            await state.set_state(msgtoindividual.sendtoone)
+        return
+    user_id = int(user_id)
+    if user_id == message.from_user.id:
+        await message.answer(
+            "Siz o'zingizga o'zingiz habar yubora olmaysiz.",
+            reply_markup=admin_panel_button,
+        )
+        await state.clear()
+        return
+    if not await check_user_exists(user_id):
+        await message.answer(
+            "Berilgan ID orqali hech qanday foydalanuvchi topilmadi.",
+            reply_markup=admin_panel_button,
+        )
+        await state.clear()
+        return
+    await state.update_data(userid=user_id)
+    await message.answer("Endi esa yuboriladigan habarni yuboring (turli formatda bo'lishi mumkin).")
+    await state.set_state(msgtoindividual.sendtoone)
 
 
-@dp.message(msgtoindividual.sendtoone)
-async def state_send_msg_to_all(message: types.Message, state: FSMContext):
-    msg_text = message.text.strip()
+@dp.message(msgtoindividual.sendtoone, content_types=types.ContentType.ANY)
+async def state_forward_message_to_individual(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    await send_message_to_user(data["userid"], msg_text)
-    await message.answer(
-        f"Habar foydalanuvchiga muvaffaqiyatli yuborildi ✅",
-        reply_markup=admin_panel_button,
-    )
-    await state.clear()
+    user_id = int(data["userid"])
 
-
+    try:
+        await bot.forward_message(chat_id=user_id, from_chat_id=message.chat.id, message_id=message.message_id)
+        await message.answer(
+            "Habar foydalanuvchiga muvaffaqiyatli yuborildi ✅",
+            reply_markup=admin_panel_button,
+        )
+    except Exception as e:
+        await message.answer(
+            f"Habar yuborishda xatolik yuz berdi: {e}",
+            reply_markup=admin_panel_button,
+        )
+    finally:
+        await state.clear()
 @dp.message(F.text == "💠 Referal dastur")
 async def send_referral_link(message: types.Message):
     referral_link = f"https://t.me/free_courses_robot?start={message.from_user.id}"

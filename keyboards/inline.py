@@ -85,9 +85,8 @@ async def change_points_callback(call: types.CallbackQuery, state: FSMContext):
 
 @dp.message(forpoint.waiting_for_new_points)
 async def process_new_points(message: types.Message, state: FSMContext):
-    new_points = message.text.strip()
-
-    if not new_points.isdigit() and new_points != "Bekor qilish 🚫":
+    new_points = message.text
+    if not new_points.isdigit() and "Bekor qilish 🚫" in new_points :
         await message.answer(
             "❌ Iltimos, faqat raqam kiriting.", reply_markup=back_button
         )

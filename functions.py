@@ -149,21 +149,21 @@ def get_bot_statistics():
     return statistics
 
 
-async def send_message_to_all_users(message_text: str, userid):
+def get_all_user_ids(userid):
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
     cursor.execute("SELECT user_id FROM users")
     users = cursor.fetchall()
     conn.close()
+    lst = []
     for user in users:
-        print(user)
         user_id = user[0]
         if user_id != userid:
             try:
-                await bot.send_message(user_id, message_text, parse_mode="Markdown")
+                lst.append(user_id)
             except Exception as e:
                 print(f"Failed to send message to user {user_id}: {e}")
-
+    return lst
 
 async def send_message_to_user(user_id: int, message_text: str):
     try:
