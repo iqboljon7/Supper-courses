@@ -852,7 +852,7 @@ async def state_send_msg_to_individual(message: types.Message, state: FSMContext
         )
         await state.clear()
         return
-    if not await check_user_exists(user_id):
+    if not  check_user_exists(user_id):
         await message.answer(
             "Berilgan ID orqali hech qanday foydalanuvchi topilmadi.",
             reply_markup=admin_panel_button,
